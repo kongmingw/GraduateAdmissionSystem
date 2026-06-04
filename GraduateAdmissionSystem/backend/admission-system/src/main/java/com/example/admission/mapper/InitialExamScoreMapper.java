@@ -34,4 +34,10 @@ public interface InitialExamScoreMapper {
     @Insert("INSERT INTO initial_exam_score(exam_number, politics_score, foreign_language_score, professional_basic_score) " +
             "VALUES(#{examNumber}, #{politicsScore}, #{foreignLanguageScore}, #{professionalBasicScore})")
     int insert(InitialExamScore score);
+    
+    //  加 update 方法
+    @Update("UPDATE initial_exam_score SET politics_score=#{politicsScore}, " +
+            "foreign_language_score=#{foreignLanguageScore}, professional_basic_score=#{professionalBasicScore} " +
+            "WHERE exam_number=#{examNumber}")
+    int update(InitialExamScore score);
 }
