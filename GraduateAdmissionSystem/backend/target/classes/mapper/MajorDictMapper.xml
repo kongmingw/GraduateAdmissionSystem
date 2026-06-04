@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.admission.mapper.MajorDictMapper">
+
+    <!-- 查询所有专业 -->
+    <select id="findAll" resultType="com.admission.entity.MajorDict">
+        SELECT * FROM major_dict
+    </select>
+
+    <!-- 根据专业代码查询 -->
+    <select id="findByCode" resultType="com.admission.entity.MajorDict">
+        SELECT * FROM major_dict WHERE major_code = #{majorCode}
+    </select>
+
+    <!-- 新增专业 -->
+    <insert id="insert">
+        INSERT INTO major_dict (major_code, major_name, planned_inside, planned_outside)
+        VALUES (#{majorCode}, #{majorName}, #{plannedInside}, #{plannedOutside})
+    </insert>
+
+    <!-- 更新专业 -->
+    <update id="update">
+        UPDATE major_dict
+        SET major_name = #{majorName},
+            planned_inside = #{plannedInside},
+            planned_outside = #{plannedOutside}
+        WHERE major_code = #{majorCode}
+    </update>
+
+    <!-- 删除专业 -->
+    <delete id="deleteByCode">
+        DELETE FROM major_dict WHERE major_code = #{majorCode}
+    </delete>
+
+</mapper>
