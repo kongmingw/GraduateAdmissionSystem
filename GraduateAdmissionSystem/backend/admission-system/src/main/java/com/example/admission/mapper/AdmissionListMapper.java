@@ -52,7 +52,10 @@ public interface AdmissionListMapper {
             "WHERE exam_number=#{examNumber}")
     int update(AdmissionList admission);
     
-    // 统计分析查询
+    // ✅ 加上这个 delete 方法
+    @Delete("DELETE FROM admission_list WHERE exam_number = #{examNumber}")
+    int delete(String examNumber);
+    
     @Select("SELECT COUNT(*) FROM admission_list WHERE is_admitted = 1")
     int countAdmitted();
     
