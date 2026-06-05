@@ -1,0 +1,224 @@
+<template>
+  <div class="page-container">
+    <el-card>
+      <template #header>
+        <div class="card-header">
+          <span>考生档案管理</span>
+          <el-button type="primary" @click="showAddDialog">新增考生</el-button>
+        </div>
+      </template>
+
+      <!-- 搜索栏 -->
+      <el-form :inline="true">
+        <el-form-item label="报考专业">
+          <el-select v-model="searchMajor" placeholder="请选择" clearable @change="searchByMajor">
+            <el-option
+              v-for="m in majorList"
+              :key="m.majorCode"
+              :label="m.majorName"
+              :value="m.majorCode"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button @click="loadData">刷新</el-button>
+        </el-form-item>
+      </el-form>
+
+      <!-- 数据表格 -->
+      <el-table :data="tableData" border stripe>
+        <el-table-column prop="examId" label="考号" width="100" />
+        <el-table-column prop="name" label="姓名" width="80" />
+        <el-table-column prop="gender" label="性别" width="60" />
+        <el-table-column prop="age" label="年龄" width="60" />
+        <el-table-column prop="politicalStatus" label="政治面貌" width="100" />
+        <el-table-column prop="education" label="学历" width="80" />
+        <el-table-column prop="origin" label="来源地" width="100" />
+        <el-table-column prop="targetMajor" label="报考专业" width="100" />
+        <el-table-column prop="category" label="报考类别" width="80" />
+        <el-table-column label="操作" width="150" fixed="right">
+          <template #default="scope">
+            <el-button size="small" @click="showEditDialog(scope.row)">编辑</el-button>
+            <el-button size="small" type="danger" @click="handleDelete(scope.row.examId)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-card>
+
+    <!-- 新增/编辑对话框 -->
+    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="500px">
+      <el-form :model="form" label-width="100px">
+        <el-form-item label="考号">
+          <el-input v-model="form.examId" :disabled="isEdit" />
+        </el-form-item>
+        <el-form-item label="姓名">
+          <el-input v-model="form.name" />
+        </el-form-item>
+        <el-form-item label="性别">
+          <el-select v-model="form.gender">
+            <el-option label="男" value="男" />
+            <el-option label="女" value="女" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="年龄">
+          <el-input-number v-model="form.age" :min="18" :max="60" />
+        </el-form-item>
+        <el-form-item label="政治面貌">
+          <el-input v-model="form.politicalStatus" />
+        </el-form-item>
+        <el-form-item label="是否应届">
+          <el-switch v-model="form.isFreshGraduate" />
+        </el-form-item>
+        <el-form-item label="学历">
+          <el-select v-model="form.education">
+            <el-option label="本科" value="本科" />
+            <el-option label="硕士" value="硕士" />
+            <el-option label="博士" value="博士" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="来源地">
+          <el-input v-model="form.origin" />
+        </el-form-item>
+        <el-form-item label="报考专业">
+          <el-select v-model="form.targetMajor">
+            <el-option
+              v-for="m in majorList"
+              :key="m.majorCode"
+              :label="m.majorName"
+              :value="m.majorCode"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="报考类别">
+          <el-select v-model="form.category">
+            <el-option label="计划内" value="计划内" />
+            <el-option label="计划外" value="计划外" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleSave">保存</el-button>
+      </template>
+    </el-dialog>
+  </div>
+</template>
+
+<script setup>
+import { ref, reactive, onMounted, computed } from 'vue'
+import { getCandidateList, getCandidateByMajor, registerCandidate, updateCandidate, deleteCandidate } from '../api/candidate'
+import { getMajorList } from '../api/major'
+import { ElMessage, ElMessageBox } from 'element-plus'
+
+const tableData = ref([])
+const majorList = ref([])
+const searchMajor = ref('')
+const dialogVisible = ref(false)
+const isEdit = ref(false)
+const dialogTitle = computed(() => isEdit.value ? '编辑考生' : '新增考生')
+
+const form = reactive({
+  examId: '',
+  name: '',
+  gender: '男',
+  age: 22,
+  politicalStatus: '',
+  isFreshGraduate: true,
+  education: '本科',
+  origin: '',
+  targetMajor: '',
+  category: '计划内'
+})
+
+// 加载数据
+async function loadData() {
+  try {
+    const res = await getCandidateList()
+    tableData.value = res.data || []
+  } catch (e) {
+    ElMessage.error('加载考生数据失败')
+  }
+}
+
+async function loadMajors() {
+  try {
+    const res = await getMajorList()
+    majorList.value = res.data || []
+  } catch (e) {
+    console.error('加载专业列表失败')
+  }
+}
+
+// 按专业搜索
+async function searchByMajor() {
+  if (!searchMajor.value) {
+    loadData()
+    return
+  }
+  try {
+    const res = await getCandidateByMajor(searchMajor.value)
+    tableData.value = res.data || []
+  } catch (e) {
+    ElMessage.error('搜索失败')
+  }
+}
+
+// 新增
+function showAddDialog() {
+  isEdit.value = false
+  Object.keys(form).forEach(key => form[key] = key === 'gender' ? '男' : key === 'education' ? '本科' : key === 'category' ? '计划内' : key === 'isFreshGraduate' ? true : key === 'age' ? 22 : '')
+  dialogVisible.value = true
+}
+
+// 编辑
+function showEditDialog(row) {
+  isEdit.value = true
+  Object.assign(form, row)
+  dialogVisible.value = true
+}
+
+// 保存
+async function handleSave() {
+  try {
+    if (isEdit.value) {
+      await updateCandidate(form)
+      ElMessage.success('更新成功')
+    } else {
+      await registerCandidate(form)
+      ElMessage.success('新增成功')
+    }
+    dialogVisible.value = false
+    loadData()
+  } catch (e) {
+    ElMessage.error('操作失败')
+  }
+}
+
+// 删除
+async function handleDelete(examId) {
+  try {
+    await ElMessageBox.confirm('确认删除该考生？', '提示', { type: 'warning' })
+    await deleteCandidate(examId)
+    ElMessage.success('删除成功')
+    loadData()
+  } catch (e) {
+    // 用户取消
+  }
+}
+
+onMounted(() => {
+  loadData()
+  loadMajors()
+})
+</script>
+
+<style scoped>
+.page-container {
+  max-width: 1200px;
+}
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+</style>

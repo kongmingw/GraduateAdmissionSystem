@@ -1,0 +1,25 @@
+import axios from 'axios'
+
+const request = axios.create({
+  baseURL: '/api',
+  timeout: 10000
+})
+
+// 响应拦截器
+request.interceptors.response.use(
+  response => {
+    const res = response.data
+    if (res.code === 200) {
+      return res
+    } else {
+      console.error('请求失败:', res.message)
+      return Promise.reject(new Error(res.message || '请求失败'))
+    }
+  },
+  error => {
+    console.error('网络错误:', error)
+    return Promise.reject(error)
+  }
+)
+
+export default request

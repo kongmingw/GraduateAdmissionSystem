@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.admission.mapper.ScoreStatisticsMapper">
+
+    <!-- 各科平均分、最高分、最低分 -->
+    <select id="scoreOverview" resultType="java.util.HashMap">
+        SELECT
+            ROUND(AVG(politics), 1) AS avgPolitics,
+            MAX(politics) AS maxPolitics,
+            MIN(politics) AS minPolitics,
+            ROUND(AVG(foreign_lang), 1) AS avgForeign,
+            MAX(foreign_lang) AS maxForeign,
+            MIN(foreign_lang) AS minForeign,
+            ROUND(AVG(major_basis), 1) AS avgMajorBasis,
+            MAX(major_basis) AS maxMajorBasis,
+            MIN(major_basis) AS minMajorBasis
+        FROM first_test_score
+    </select>
+
+    <!-- 各科及格率（>=60分为及格） -->
+    <select id="passRate" resultType="java.util.HashMap">
+        <![CDATA[
+        SELECT
+            '政治' AS subject,
+            ROUND(SUM(CASE WHEN politics >= 60 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS passRate,
+            ROUND(SUM(CASE WHEN politics < 60 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS failRate
+        FROM first_test_score
+        UNION ALL
+        SELECT
+            '外语' AS subject,
+            ROUND(SUM(CASE WHEN foreign_lang >= 60 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS passRate,
+            ROUND(SUM(CASE WHEN foreign_lang < 60 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS failRate
+        FROM first_test_score
+        UNION ALL
+        SELECT
+            '专业基础' AS subject,
+            ROUND(SUM(CASE WHEN major_basis >= 60 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS passRate,
+            ROUND(SUM(CASE WHEN major_basis < 60 THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1) AS failRate
+        FROM first_test_score
+        ]]>
+    </select>
+
+    <!-- 初试总分分数段 -->
+    <select id="firstScoreDistribution" resultType="java.util.HashMap">
+        <![CDATA[
+        SELECT
+            CASE
+                WHEN total_first < 200 THEN '200分以下'
+                WHEN total_first BETWEEN 200 AND 249 THEN '200-249分'
+                WHEN total_first BETWEEN 250 AND 299 THEN '250-299分'
+                ELSE '300分以上'
+            END AS scoreRange,
+            COUNT(*) AS count
+        FROM first_test_score
+        GROUP BY scoreRange
+        ORDER BY MIN(total_first)
+        ]]>
+    </select>
+
+    <!-- 复试总分分数段 -->
+    <select id="secondScoreDistribution" resultType="java.util.HashMap">
+        <![CDATA[
+        SELECT
+            CASE
+                WHEN total_second < 200 THEN '200分以下'
+                WHEN total_second BETWEEN 200 AND 230 THEN '200-230分'
+                WHEN total_second BETWEEN 231 AND 260 THEN '231-260分'
+                ELSE '260分以上'
+            END AS scoreRange,
+            COUNT(*) AS count
+        FROM second_test_score
+        GROUP BY scoreRange
+        ORDER BY MIN(total_second)
+        ]]>
+    </select>
+
+</mapper>

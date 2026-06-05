@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.admission.mapper.AdmissionListMapper">
+
+    <select id="findAll" resultType="com.admission.entity.AdmissionList">
+        SELECT * FROM admission_list
+    </select>
+
+    <select id="findByExamId" resultType="com.admission.entity.AdmissionList">
+        SELECT * FROM admission_list WHERE exam_id = #{examId}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO admission_list (exam_id, admitted_major, final_first_score, final_second_score, total_score)
+        VALUES (#{examId}, #{admittedMajor}, #{finalFirstScore}, #{finalSecondScore}, #{totalScore})
+    </insert>
+
+    <update id="update">
+        UPDATE admission_list
+        SET admitted_major = #{admittedMajor},
+            final_first_score = #{finalFirstScore},
+            final_second_score = #{finalSecondScore},
+            total_score = #{totalScore}
+        WHERE exam_id = #{examId}
+    </update>
+
+    <delete id="deleteByExamId">
+        DELETE FROM admission_list WHERE exam_id = #{examId}
+    </delete>
+
+    <!-- 统计各专业录取人数 -->
+    <select id="countByMajor" resultType="java.util.HashMap">
+        SELECT m.major_name AS majorName, COUNT(a.exam_id) AS count
+        FROM admission_list a
+        LEFT JOIN major_dict m ON a.admitted_major = m.major_code
+        GROUP BY a.admitted_major, m.major_name
+    </select>
+
+    <!-- 统计录取生来源分布 -->
+    <select id="countByOrigin" resultType="java.util.HashMap">
+        SELECT p.origin AS name, COUNT(*) AS value
+        FROM admission_list a
+        LEFT JOIN candidate_profile p ON a.exam_id = p.exam_id
+        GROUP BY p.origin
+    </select>
+
+    <!-- 统计录取生学历分布 -->
+    <select id="countByEducation" resultType="java.util.HashMap">
+        SELECT p.education AS name, COUNT(*) AS value
+        FROM admission_list a
+        LEFT JOIN candidate_profile p ON a.exam_id = p.exam_id
+        GROUP BY p.education
+    </select>
+
+    <!-- 统计计划与实际招生对比 -->
+    <select id="planVsActual" resultType="java.util.HashMap">
+        SELECT m.major_name AS majorName,
+               m.planned_inside AS plannedInside,
+               m.planned_outside AS plannedOutside,
+               m.planned_inside + m.planned_outside AS totalPlanned,
+               COUNT(a.exam_id) AS actualCount
+        FROM major_dict m
+        LEFT JOIN admission_list a ON m.major_code = a.admitted_major
+        GROUP BY m.major_code, m.major_name, m.planned_inside, m.planned_outside
+    </select>
+
+</mapper>
