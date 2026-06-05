@@ -51,3 +51,14 @@ CREATE TABLE `admission_list` (
     FOREIGN KEY (`exam_id`) REFERENCES `candidate_profile`(`exam_id`),
     FOREIGN KEY (`admitted_major`) REFERENCES `major_dict`(`major_code`)
 ) COMMENT='录取名单';
+
+-- 分数线表
+CREATE TABLE `score_line` (
+    `id` INT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
+    `year` VARCHAR(10) NOT NULL COMMENT '招生年份',
+    `politics_line` DECIMAL(5,2) COMMENT '政治单科线',
+    `foreign_lang_line` DECIMAL(5,2) COMMENT '外语单科线',
+    `major_basis_line` DECIMAL(5,2) COMMENT '专业基础单科线',
+    `total_first_line` DECIMAL(6,2) COMMENT '初试总分线',
+    `admission_total_line` DECIMAL(6,2) COMMENT '录取总分线'
+) COMMENT='分数线';

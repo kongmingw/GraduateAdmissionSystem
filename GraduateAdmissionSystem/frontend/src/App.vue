@@ -27,6 +27,14 @@
           <el-icon><Document /></el-icon>
           <span>复试成绩</span>
         </el-menu-item>
+        <el-menu-item index="/score-line">
+          <el-icon><Tickets /></el-icon>
+          <span>分数线</span>
+        </el-menu-item>
+        <el-menu-item index="/admission">
+          <el-icon><Checked /></el-icon>
+          <span>录取管理</span>
+        </el-menu-item>
         <el-menu-item index="/statistics">
           <el-icon><DataAnalysis /></el-icon>
           <span>统计分析</span>

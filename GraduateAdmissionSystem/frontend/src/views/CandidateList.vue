@@ -10,18 +10,18 @@
 
       <!-- 搜索栏 -->
       <el-form :inline="true">
+        <el-form-item label="搜索">
+          <el-input v-model="searchKeyword" placeholder="考号或姓名" clearable @input="doFilter" style="width:200px;" />
+        </el-form-item>
         <el-form-item label="报考专业">
-          <el-select v-model="searchMajor" placeholder="请选择" clearable @change="searchByMajor">
+          <el-select v-model="searchMajor" placeholder="全部专业" clearable @change="doFilter" style="width:220px;">
             <el-option
               v-for="m in majorList"
               :key="m.majorCode"
               :label="m.majorName"
               :value="m.majorCode"
-            />
+            >{{ m.majorName }}</el-option>
           </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button @click="loadData">刷新</el-button>
         </el-form-item>
       </el-form>
 
@@ -64,7 +64,13 @@
           <el-input-number v-model="form.age" :min="18" :max="60" />
         </el-form-item>
         <el-form-item label="政治面貌">
-          <el-input v-model="form.politicalStatus" />
+          <el-select v-model="form.politicalStatus">
+            <el-option label="中共党员" value="中共党员" />
+            <el-option label="中共预备党员" value="中共预备党员" />
+            <el-option label="共青团员" value="共青团员" />
+            <el-option label="群众" value="群众" />
+            <el-option label="其他党派" value="其他党派" />
+          </el-select>
         </el-form-item>
         <el-form-item label="是否应届">
           <el-switch v-model="form.isFreshGraduate" />
@@ -111,7 +117,9 @@ import { getMajorList } from '../api/major'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const tableData = ref([])
+const allData = ref([])
 const majorList = ref([])
+const searchKeyword = ref('')
 const searchMajor = ref('')
 const dialogVisible = ref(false)
 const isEdit = ref(false)
@@ -134,7 +142,8 @@ const form = reactive({
 async function loadData() {
   try {
     const res = await getCandidateList()
-    tableData.value = res.data || []
+    allData.value = res.data || []
+    doFilter()
   } catch (e) {
     ElMessage.error('加载考生数据失败')
   }
@@ -149,18 +158,17 @@ async function loadMajors() {
   }
 }
 
-// 按专业搜索
-async function searchByMajor() {
-  if (!searchMajor.value) {
-    loadData()
-    return
+// 筛选
+function doFilter() {
+  let list = allData.value
+  if (searchMajor.value) {
+    list = list.filter(c => c.targetMajor === searchMajor.value)
   }
-  try {
-    const res = await getCandidateByMajor(searchMajor.value)
-    tableData.value = res.data || []
-  } catch (e) {
-    ElMessage.error('搜索失败')
+  if (searchKeyword.value) {
+    const kw = searchKeyword.value.toLowerCase()
+    list = list.filter(c => c.examId.toLowerCase().includes(kw) || c.name.toLowerCase().includes(kw))
   }
+  tableData.value = list
 }
 
 // 新增

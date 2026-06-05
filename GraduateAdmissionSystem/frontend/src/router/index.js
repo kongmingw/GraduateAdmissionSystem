@@ -30,10 +30,22 @@ const routes = [
     meta: { title: '复试成绩' }
   },
   {
-  path: '/statistics',
-  name: 'Statistics',
-  component: () => import('../views/Statistics.vue'),
-  meta: { title: '统计分析' }
+    path: '/score-line',
+    name: 'ScoreLine',
+    component: () => import('../views/ScoreLine.vue'),
+    meta: { title: '分数线' }
+  },
+  {
+    path: '/admission',
+    name: 'Admission',
+    component: () => import('../views/AdmissionList.vue'),
+    meta: { title: '录取管理' }
+  },
+  {
+    path: '/statistics',
+    name: 'Statistics',
+    component: () => import('../views/Statistics.vue'),
+    meta: { title: '统计分析' }
   }
 ]
 
