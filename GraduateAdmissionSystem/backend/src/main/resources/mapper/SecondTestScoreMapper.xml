@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.admission.mapper.SecondTestScoreMapper">
+
+    <select id="findAll" resultType="com.admission.entity.SecondTestScore">
+        SELECT * FROM second_test_score
+    </select>
+
+    <select id="findByExamId" resultType="com.admission.entity.SecondTestScore">
+        SELECT * FROM second_test_score WHERE exam_id = #{examId}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO second_test_score (exam_id, major_test, interview, computer_test)
+        VALUES (#{examId}, #{majorTest}, #{interview}, #{computerTest})
+    </insert>
+
+    <update id="update">
+        UPDATE second_test_score
+        SET major_test = #{majorTest},
+            interview = #{interview},
+            computer_test = #{computerTest}
+        WHERE exam_id = #{examId}
+    </update>
+
+    <delete id="deleteByExamId">
+        DELETE FROM second_test_score WHERE exam_id = #{examId}
+    </delete>
+
+</mapper>

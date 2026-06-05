@@ -21,4 +21,20 @@ public class AdmissionList {
     private Double finalSecondScore;
     /** 综合总分 */
     private Double totalScore;
+
+    // Getter 和 Setter
+    public String getExamId() { return examId; }
+    public void setExamId(String examId) { this.examId = examId; }
+
+    public String getAdmittedMajor() { return admittedMajor; }
+    public void setAdmittedMajor(String admittedMajor) { this.admittedMajor = admittedMajor; }
+
+    public Double getFinalFirstScore() { return finalFirstScore; }
+    public void setFinalFirstScore(Double finalFirstScore) { this.finalFirstScore = finalFirstScore; }
+
+    public Double getFinalSecondScore() { return finalSecondScore; }
+    public void setFinalSecondScore(Double finalSecondScore) { this.finalSecondScore = finalSecondScore; }
+
+    public Double getTotalScore() { return totalScore; }
+    public void setTotalScore(Double totalScore) { this.totalScore = totalScore; }
 }

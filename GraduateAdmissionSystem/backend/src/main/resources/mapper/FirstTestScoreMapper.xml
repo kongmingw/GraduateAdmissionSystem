@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.admission.mapper.FirstTestScoreMapper">
+
+    <select id="findAll" resultType="com.admission.entity.FirstTestScore">
+        SELECT * FROM first_test_score
+    </select>
+
+    <select id="findByExamId" resultType="com.admission.entity.FirstTestScore">
+        SELECT * FROM first_test_score WHERE exam_id = #{examId}
+    </select>
+
+    <insert id="insert">
+        INSERT INTO first_test_score (exam_id, politics, foreign_lang, major_basis)
+        VALUES (#{examId}, #{politics}, #{foreignLang}, #{majorBasis})
+    </insert>
+
+    <update id="update">
+        UPDATE first_test_score
+        SET politics = #{politics},
+            foreign_lang = #{foreignLang},
+            major_basis = #{majorBasis}
+        WHERE exam_id = #{examId}
+    </update>
+
+    <delete id="deleteByExamId">
+        DELETE FROM first_test_score WHERE exam_id = #{examId}
+    </delete>
+
+</mapper>
