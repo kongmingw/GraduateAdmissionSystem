@@ -1,19 +1,13 @@
 package com.admission.controller;
 
-import com.admission.entity.AdmissionList;
-import com.admission.entity.FirstTestScore;
-import com.admission.entity.Result;
-import com.admission.entity.ScoreLine;
-import com.admission.entity.SecondTestScore;
-import com.admission.mapper.AdmissionListMapper;
-import com.admission.mapper.FirstTestScoreMapper;
-import com.admission.mapper.ScoreLineMapper;
-import com.admission.mapper.SecondTestScoreMapper;
+import com.admission.entity.*;
+import com.admission.mapper.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 录取名单控制器
@@ -33,6 +27,12 @@ public class AdmissionListController {
 
     @Autowired
     private ScoreLineMapper scoreLineMapper;
+
+    @Autowired
+    private CandidateProfileMapper candidateProfileMapper;
+
+    @Autowired
+    private MajorDictMapper majorDictMapper;
 
     /** 查询所有录取考生 */
     @GetMapping("/list")
@@ -78,6 +78,38 @@ public class AdmissionListController {
         if (line != null && line.getAdmissionTotalLine() != null) {
             if (totalScore < line.getAdmissionTotalLine()) {
                 return Result.error("综合总分(" + totalScore + ")未达到录取总分线(" + line.getAdmissionTotalLine() + ")，无法录取");
+            }
+        }
+        // 检查招生名额
+        CandidateProfile candidate = candidateProfileMapper.findByExamId(examId);
+        String admittedMajor = request.getAdmittedMajor();
+        if (candidate != null && admittedMajor != null) {
+            MajorDict major = majorDictMapper.findByCode(admittedMajor);
+            if (major != null) {
+                // 统计该专业已录取人数
+                int currentCount = 0;
+                int currentPlanNei = 0;
+                int currentPlanWai = 0;
+                for (AdmissionList a : admissionListMapper.findAll()) {
+                    if (admittedMajor.equals(a.getAdmittedMajor())) {
+                        currentCount++;
+                        CandidateProfile cp = candidateProfileMapper.findByExamId(a.getExamId());
+                        if (cp != null) {
+                            if ("计划内".equals(cp.getCategory())) currentPlanNei++;
+                            else currentPlanWai++;
+                        }
+                    }
+                }
+                int totalPlan = major.getPlannedInside() + major.getPlannedOutside();
+                if (currentCount >= totalPlan) {
+                    return Result.error("该专业招生名额已满（计划" + totalPlan + "人，已录取" + currentCount + "人）");
+                }
+                if ("计划内".equals(candidate.getCategory()) && currentPlanNei >= major.getPlannedInside()) {
+                    return Result.error("该专业计划内名额已满（计划" + major.getPlannedInside() + "人，已录取" + currentPlanNei + "人）");
+                }
+                if ("计划外".equals(candidate.getCategory()) && currentPlanWai >= major.getPlannedOutside()) {
+                    return Result.error("该专业计划外名额已满（计划" + major.getPlannedOutside() + "人，已录取" + currentPlanWai + "人）");
+                }
             }
         }
         request.setFinalFirstScore(firstScore.getTotalFirst());

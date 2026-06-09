@@ -46,15 +46,15 @@
     </el-card>
 
     <!-- 新增/编辑对话框 -->
-    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="500px">
-      <el-form :model="form" label-width="100px">
-        <el-form-item label="考号">
+    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="500px" @close="resetForm">
+      <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
+        <el-form-item label="考号" prop="examId">
           <el-input v-model="form.examId" :disabled="isEdit" />
         </el-form-item>
-        <el-form-item label="姓名">
+        <el-form-item label="姓名" prop="name">
           <el-input v-model="form.name" />
         </el-form-item>
-        <el-form-item label="性别">
+        <el-form-item label="性别" prop="gender">
           <el-select v-model="form.gender">
             <el-option label="男" value="男" />
             <el-option label="女" value="女" />
@@ -63,7 +63,7 @@
         <el-form-item label="年龄">
           <el-input-number v-model="form.age" :min="18" :max="60" />
         </el-form-item>
-        <el-form-item label="政治面貌">
+        <el-form-item label="政治面貌" prop="politicalStatus">
           <el-select v-model="form.politicalStatus">
             <el-option label="中共党员" value="中共党员" />
             <el-option label="中共预备党员" value="中共预备党员" />
@@ -75,17 +75,17 @@
         <el-form-item label="是否应届">
           <el-switch v-model="form.isFreshGraduate" />
         </el-form-item>
-        <el-form-item label="学历">
+        <el-form-item label="学历" prop="education">
           <el-select v-model="form.education">
             <el-option label="本科" value="本科" />
             <el-option label="硕士" value="硕士" />
             <el-option label="博士" value="博士" />
           </el-select>
         </el-form-item>
-        <el-form-item label="来源地">
+        <el-form-item label="来源地" prop="origin">
           <el-input v-model="form.origin" />
         </el-form-item>
-        <el-form-item label="报考专业">
+        <el-form-item label="报考专业" prop="targetMajor">
           <el-select v-model="form.targetMajor">
             <el-option
               v-for="m in majorList"
@@ -95,7 +95,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="报考类别">
+        <el-form-item label="报考类别" prop="category">
           <el-select v-model="form.category">
             <el-option label="计划内" value="计划内" />
             <el-option label="计划外" value="计划外" />
@@ -116,6 +116,7 @@ import { getCandidateList, getCandidateByMajor, registerCandidate, updateCandida
 import { getMajorList } from '../api/major'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
+const formRef = ref(null)
 const tableData = ref([])
 const allData = ref([])
 const majorList = ref([])
@@ -123,6 +124,17 @@ const searchKeyword = ref('')
 const searchMajor = ref('')
 const dialogVisible = ref(false)
 const isEdit = ref(false)
+
+const rules = {
+  examId: [{ required: true, message: '请填写考号', trigger: 'blur' }],
+  name: [{ required: true, message: '请填写姓名', trigger: 'blur' }],
+  gender: [{ required: true, message: '请选择性别', trigger: 'change' }],
+  politicalStatus: [{ required: true, message: '请选择政治面貌', trigger: 'change' }],
+  education: [{ required: true, message: '请选择学历', trigger: 'change' }],
+  origin: [{ required: true, message: '请填写来源地', trigger: 'blur' }],
+  targetMajor: [{ required: true, message: '请选择报考专业', trigger: 'change' }],
+  category: [{ required: true, message: '请选择报考类别', trigger: 'change' }]
+}
 const dialogTitle = computed(() => isEdit.value ? '编辑考生' : '新增考生')
 
 const form = reactive({
@@ -188,6 +200,11 @@ function showEditDialog(row) {
 // 保存
 async function handleSave() {
   try {
+    await formRef.value.validate()
+  } catch {
+    return
+  }
+  try {
     if (isEdit.value) {
       await updateCandidate(form)
       ElMessage.success('更新成功')
@@ -210,8 +227,12 @@ async function handleDelete(examId) {
     ElMessage.success('删除成功')
     loadData()
   } catch (e) {
-    // 用户取消
+    if (e !== 'cancel') ElMessage.error('删除失败：该考生有关联的成绩或录取记录')
   }
+}
+
+function resetForm() {
+  formRef.value?.resetFields()
 }
 
 onMounted(() => {

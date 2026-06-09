@@ -1,7 +1,8 @@
 package com.admission.controller;
 
-import com.admission.entity.MajorDict;
-import com.admission.entity.Result;
+import com.admission.entity.*;
+import com.admission.mapper.AdmissionListMapper;
+import com.admission.mapper.CandidateProfileMapper;
 import com.admission.service.MajorDictService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,12 @@ public class MajorDictController {
 
     @Autowired
     private MajorDictService majorDictService;
+
+    @Autowired
+    private AdmissionListMapper admissionListMapper;
+
+    @Autowired
+    private CandidateProfileMapper candidateProfileMapper;
 
     /** 查询所有专业 */
     @GetMapping("/list")
@@ -48,6 +55,24 @@ public class MajorDictController {
     /** 更新专业 */
     @PutMapping("/update")
     public Result<String> update(@RequestBody MajorDict majorDict) {
+        // 检查已录取人数是否超过新的招生数
+        String majorCode = majorDict.getMajorCode();
+        int planNei = 0, planWai = 0;
+        for (AdmissionList a : admissionListMapper.findAll()) {
+            if (majorCode.equals(a.getAdmittedMajor())) {
+                CandidateProfile cp = candidateProfileMapper.findByExamId(a.getExamId());
+                if (cp != null) {
+                    if ("计划内".equals(cp.getCategory())) planNei++;
+                    else planWai++;
+                }
+            }
+        }
+        if (planNei > majorDict.getPlannedInside()) {
+            return Result.error("计划内已录取" + planNei + "人，不能将招生数改为" + majorDict.getPlannedInside());
+        }
+        if (planWai > majorDict.getPlannedOutside()) {
+            return Result.error("计划外已录取" + planWai + "人，不能将招生数改为" + majorDict.getPlannedOutside());
+        }
         int count = majorDictService.update(majorDict);
         if (count > 0) {
             return Result.success("更新专业成功");

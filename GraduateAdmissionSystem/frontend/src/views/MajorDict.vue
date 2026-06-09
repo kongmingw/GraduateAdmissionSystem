@@ -135,7 +135,7 @@ async function handleDelete(majorCode) {
     ElMessage.success('删除成功')
     loadData()
   } catch (e) {
-    // 用户取消
+    if (e !== 'cancel') ElMessage.error('删除失败：该专业有考生报考或录取记录，无法删除')
   }
 }
 
