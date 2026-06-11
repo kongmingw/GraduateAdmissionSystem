@@ -21,20 +21,4 @@ public class FirstTestScore {
     private Double majorBasis;
     /** 初试总分（数据库虚拟列，查询时返回，新增时不需要传） */
     private Double totalFirst;
-
-    // Getter 和 Setter
-    public String getExamId() { return examId; }
-    public void setExamId(String examId) { this.examId = examId; }
-
-    public Double getPolitics() { return politics; }
-    public void setPolitics(Double politics) { this.politics = politics; }
-
-    public Double getForeignLang() { return foreignLang; }
-    public void setForeignLang(Double foreignLang) { this.foreignLang = foreignLang; }
-
-    public Double getMajorBasis() { return majorBasis; }
-    public void setMajorBasis(Double majorBasis) { this.majorBasis = majorBasis; }
-
-    public Double getTotalFirst() { return totalFirst; }
-    public void setTotalFirst(Double totalFirst) { this.totalFirst = totalFirst; } 
 }

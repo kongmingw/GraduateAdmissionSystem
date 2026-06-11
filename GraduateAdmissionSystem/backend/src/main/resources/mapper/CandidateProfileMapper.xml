@@ -4,32 +4,18 @@
 
 <mapper namespace="com.admission.mapper.CandidateProfileMapper">
 
-    <!-- 结果映射：处理数据库下划线字段与Java驼峰属性的对应关系 -->
-    <resultMap id="CandidateResultMap" type="com.admission.entity.CandidateProfile">
-        <id property="examId" column="exam_id"/>
-        <result property="name" column="name"/>
-        <result property="gender" column="gender"/>
-        <result property="age" column="age"/>
-        <result property="politicalStatus" column="political_status"/>
-        <result property="isFreshGraduate" column="is_fresh_graduate"/>
-        <result property="education" column="education"/>
-        <result property="origin" column="origin"/>
-        <result property="targetMajor" column="target_major"/>
-        <result property="category" column="category"/>
-    </resultMap>
-
     <!-- 查询所有考生 -->
-    <select id="findAll" resultMap="CandidateResultMap">
+    <select id="findAll" resultType="com.admission.entity.CandidateProfile">
         SELECT * FROM candidate_profile
     </select>
 
     <!-- 根据考号查询 -->
-    <select id="findByExamId" resultMap="CandidateResultMap">
+    <select id="findByExamId" resultType="com.admission.entity.CandidateProfile">
         SELECT * FROM candidate_profile WHERE exam_id = #{examId}
     </select>
 
     <!-- 根据报考专业查询 -->
-    <select id="findByMajor" resultMap="CandidateResultMap">
+    <select id="findByMajor" resultType="com.admission.entity.CandidateProfile">
         SELECT * FROM candidate_profile WHERE target_major = #{targetMajor}
     </select>
 

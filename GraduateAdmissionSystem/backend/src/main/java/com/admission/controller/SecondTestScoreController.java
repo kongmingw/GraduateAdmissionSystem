@@ -7,23 +7,19 @@ import com.admission.entity.SecondTestScore;
 import com.admission.mapper.FirstTestScoreMapper;
 import com.admission.mapper.ScoreLineMapper;
 import com.admission.service.SecondTestScoreService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/second-test")
+@RequiredArgsConstructor
 public class SecondTestScoreController {
 
-    @Autowired
-    private SecondTestScoreService secondTestScoreService;
-
-    @Autowired
-    private ScoreLineMapper scoreLineMapper;
-
-    @Autowired
-    private FirstTestScoreMapper firstTestScoreMapper;
+    private final SecondTestScoreService secondTestScoreService;
+    private final ScoreLineMapper scoreLineMapper;
+    private final FirstTestScoreMapper firstTestScoreMapper;
 
     @GetMapping("/list")
     public Result<List<SecondTestScore>> list() {
@@ -47,8 +43,9 @@ public class SecondTestScoreController {
         if (first == null) {
             return Result.error("该考生无初试成绩，不能录入复试成绩");
         }
-        // 检查初试是否过线
-        ScoreLine line = scoreLineMapper.findByYear("2026");
+        // 检查初试是否过线（使用当前年份）
+        String currentYear = String.valueOf(java.time.Year.now().getValue());
+        ScoreLine line = scoreLineMapper.findByYear(currentYear);
         if (line != null) {
             boolean pass = first.getPolitics() >= line.getPoliticsLine()
                     && first.getForeignLang() >= line.getForeignLangLine()

@@ -3,7 +3,7 @@ package com.admission.controller;
 import com.admission.entity.Result;
 import com.admission.entity.ScoreLine;
 import com.admission.service.ScoreLineService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,10 +13,10 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/score-line")
+@RequiredArgsConstructor
 public class ScoreLineController {
 
-    @Autowired
-    private ScoreLineService scoreLineService;
+    private final ScoreLineService scoreLineService;
 
     /** 查询所有分数线 */
     @GetMapping("/list")

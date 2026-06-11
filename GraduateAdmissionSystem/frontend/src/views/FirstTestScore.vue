@@ -75,7 +75,8 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import axios from 'axios'
+import { getFirstTestList, getFirstTestByExamId, addFirstTest, updateFirstTest, deleteFirstTest } from '../api/firstTest'
+import { getCandidateList } from '../api/candidate'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const tableData = ref([])
@@ -94,29 +95,27 @@ const form = reactive({
 async function loadData() {
   try {
     const [scoreRes, candidateRes] = await Promise.all([
-      axios.get('/api/first-test/list'),
-      axios.get('/api/candidate/list')
+      getFirstTestList(),
+      getCandidateList()
     ])
-    tableData.value = scoreRes.data.data || []
-    allCandidates.value = candidateRes.data.data || []
+    tableData.value = scoreRes.data || []
+    allCandidates.value = candidateRes.data || []
     const scoredIds = new Set(tableData.value.map(s => s.examId))
     pendingList.value = allCandidates.value.filter(c => !scoredIds.has(c.examId))
   } catch (e) {
-    ElMessage.error('加载数据失败')
+    ElMessage.error('加载数据失败：' + (e.message || '网络异常'))
   }
 }
 
 async function onCandidateChange(examId) {
   if (!examId) return
   try {
-    const res = await axios.get(`/api/first-test/${examId}`)
-    if (res.data.data) {
-      // 已有成绩自动回填
-      form.politics = res.data.data.politics || 0
-      form.foreignLang = res.data.data.foreignLang || 0
-      form.majorBasis = res.data.data.majorBasis || 0
+    const res = await getFirstTestByExamId(examId)
+    if (res.data) {
+      form.politics = res.data.politics || 0
+      form.foreignLang = res.data.foreignLang || 0
+      form.majorBasis = res.data.majorBasis || 0
     } else {
-      // 无成绩保持空白
       form.politics = 0
       form.foreignLang = 0
       form.majorBasis = 0
@@ -131,14 +130,12 @@ async function onCandidateChange(examId) {
 function showDialog(row) {
   if (row) {
     if (row.politics != null) {
-      // 已有成绩：编辑模式
       editExamId.value = row.examId
       form.examId = row.examId
       form.politics = row.politics || 0
       form.foreignLang = row.foreignLang || 0
       form.majorBasis = row.majorBasis || 0
     } else {
-      // 待录入：新增模式
       editExamId.value = ''
       form.examId = row.examId
       form.politics = 0
@@ -158,34 +155,33 @@ function showDialog(row) {
 async function handleSave() {
   if (!form.examId) { ElMessage.warning('请选择考生'); return }
   try {
-    const check = await axios.get(`/api/first-test/${form.examId}`)
-    if (check.data.data) {
-      await axios.put('/api/first-test/update', form)
+    // 先查询是否已有成绩，决定新增还是更新
+    const existing = await getFirstTestByExamId(form.examId)
+    if (existing.data) {
+      await updateFirstTest(form)
+      ElMessage.success('更新成功')
     } else {
-      await axios.post('/api/first-test/add', form)
+      await addFirstTest(form)
+      ElMessage.success('录入成功')
     }
-    ElMessage.success('保存成功')
     dialogVisible.value = false
     loadData()
   } catch (e) {
-    try {
-      await axios.post('/api/first-test/add', form)
-      ElMessage.success('保存成功')
-      dialogVisible.value = false
-      loadData()
-    } catch (err) {
-      ElMessage.error('操作失败')
-    }
+    ElMessage.error('操作失败：' + (e.message || '请检查网络或数据'))
   }
 }
 
 async function handleDelete(examId) {
   try {
     await ElMessageBox.confirm('确认删除该初试成绩？', '提示', { type: 'warning' })
-    await axios.delete(`/api/first-test/delete/${examId}`)
+    await deleteFirstTest(examId)
     ElMessage.success('删除成功')
     loadData()
-  } catch (e) {}
+  } catch (e) {
+    if (e !== 'cancel' && e?.message) {
+      ElMessage.error('删除失败：该考生可能有复试或录取记录')
+    }
+  }
 }
 
 onMounted(() => { loadData() })

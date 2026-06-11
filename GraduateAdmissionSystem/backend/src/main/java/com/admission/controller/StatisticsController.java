@@ -4,33 +4,23 @@ import com.admission.entity.FirstTestScore;
 import com.admission.entity.Result;
 import com.admission.entity.ScoreLine;
 import com.admission.mapper.AdmissionListMapper;
-import com.admission.mapper.CandidateProfileMapper;
 import com.admission.mapper.FirstTestScoreMapper;
 import com.admission.mapper.ScoreLineMapper;
 import com.admission.mapper.ScoreStatisticsMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
 @RestController
 @RequestMapping("/api/statistics")
+@RequiredArgsConstructor
 public class StatisticsController {
 
-    @Autowired
-    private AdmissionListMapper admissionListMapper;
-
-    @Autowired
-    private ScoreStatisticsMapper scoreStatisticsMapper;
-
-    @Autowired
-    private ScoreLineMapper scoreLineMapper;
-
-    @Autowired
-    private FirstTestScoreMapper firstTestScoreMapper;
-
-    @Autowired
-    private CandidateProfileMapper candidateProfileMapper;
+    private final AdmissionListMapper admissionListMapper;
+    private final ScoreStatisticsMapper scoreStatisticsMapper;
+    private final ScoreLineMapper scoreLineMapper;
+    private final FirstTestScoreMapper firstTestScoreMapper;
 
     /** 获取录取统计数据 */
     @GetMapping("/admission")
@@ -71,7 +61,11 @@ public class StatisticsController {
 
     /** 初试筛选：根据分数线自动判定复试资格 */
     @GetMapping("/screening")
-    public Result<Map<String, Object>> screening(@RequestParam(defaultValue = "2026") String year) {
+    public Result<Map<String, Object>> screening(@RequestParam(required = false) String year) {
+        // 未传年份则使用当前年份
+        if (year == null || year.isEmpty()) {
+            year = String.valueOf(java.time.Year.now().getValue());
+        }
         // 查分数线
         ScoreLine line = scoreLineMapper.findByYear(year);
         if (line == null) {

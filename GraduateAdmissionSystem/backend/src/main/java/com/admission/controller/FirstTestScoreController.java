@@ -3,17 +3,17 @@ package com.admission.controller;
 import com.admission.entity.FirstTestScore;
 import com.admission.entity.Result;
 import com.admission.service.FirstTestScoreService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/first-test")
+@RequiredArgsConstructor
 public class FirstTestScoreController {
 
-    @Autowired
-    private FirstTestScoreService firstTestScoreService;
+    private final FirstTestScoreService firstTestScoreService;
 
     @GetMapping("/list")
     public Result<List<FirstTestScore>> list() {

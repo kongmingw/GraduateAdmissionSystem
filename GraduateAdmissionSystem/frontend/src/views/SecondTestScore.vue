@@ -75,7 +75,9 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import axios from 'axios'
+import { getSecondTestList, getSecondTestByExamId, addSecondTest, updateSecondTest, deleteSecondTest } from '../api/secondTest'
+import { getCandidateList } from '../api/candidate'
+import { getScreening } from '../api/statistics'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const tableData = ref([])
@@ -83,6 +85,7 @@ const pendingList = ref([])
 const allCandidates = ref([])
 const dialogVisible = ref(false)
 const editExamId = ref('')
+const currentYear = new Date().getFullYear().toString()
 
 const form = reactive({
   examId: '',
@@ -94,29 +97,29 @@ const form = reactive({
 async function loadData() {
   try {
     const [scoreRes, candidateRes, screeningRes] = await Promise.all([
-      axios.get('/api/second-test/list'),
-      axios.get('/api/candidate/list'),
-      axios.get('/api/statistics/screening', { params: { year: '2026' } })
+      getSecondTestList(),
+      getCandidateList(),
+      getScreening(currentYear)
     ])
-    tableData.value = scoreRes.data.data || []
-    const allCand = candidateRes.data.data || []
-    const qualifiedIds = new Set((screeningRes.data.data?.qualified || []).map(q => q.examId))
+    tableData.value = scoreRes.data || []
+    const allCand = candidateRes.data || []
+    const qualifiedIds = new Set((screeningRes.data?.qualified || []).map(q => q.examId))
     allCandidates.value = allCand.filter(c => qualifiedIds.has(c.examId))
     const scoredIds = new Set(tableData.value.map(s => s.examId))
     pendingList.value = allCandidates.value.filter(c => !scoredIds.has(c.examId))
   } catch (e) {
-    ElMessage.error('加载数据失败')
+    ElMessage.error('加载数据失败：' + (e.message || '网络异常'))
   }
 }
 
 async function onCandidateChange(examId) {
   if (!examId) return
   try {
-    const res = await axios.get(`/api/second-test/${examId}`)
-    if (res.data.data) {
-      form.majorTest = res.data.data.majorTest || 0
-      form.interview = res.data.data.interview || 0
-      form.computerTest = res.data.data.computerTest || 0
+    const res = await getSecondTestByExamId(examId)
+    if (res.data) {
+      form.majorTest = res.data.majorTest || 0
+      form.interview = res.data.interview || 0
+      form.computerTest = res.data.computerTest || 0
     } else {
       form.majorTest = 0
       form.interview = 0
@@ -157,34 +160,32 @@ function showDialog(row) {
 async function handleSave() {
   if (!form.examId) { ElMessage.warning('请选择考生'); return }
   try {
-    const check = await axios.get(`/api/second-test/${form.examId}`)
-    if (check.data.data) {
-      await axios.put('/api/second-test/update', form)
+    const existing = await getSecondTestByExamId(form.examId)
+    if (existing.data) {
+      await updateSecondTest(form)
+      ElMessage.success('更新成功')
     } else {
-      await axios.post('/api/second-test/add', form)
+      await addSecondTest(form)
+      ElMessage.success('录入成功')
     }
-    ElMessage.success('保存成功')
     dialogVisible.value = false
     loadData()
   } catch (e) {
-    try {
-      await axios.post('/api/second-test/add', form)
-      ElMessage.success('保存成功')
-      dialogVisible.value = false
-      loadData()
-    } catch (err) {
-      ElMessage.error('操作失败')
-    }
+    ElMessage.error('操作失败：' + (e.message || '请检查网络或数据'))
   }
 }
 
 async function handleDelete(examId) {
   try {
     await ElMessageBox.confirm('确认删除该复试成绩？', '提示', { type: 'warning' })
-    await axios.delete(`/api/second-test/delete/${examId}`)
+    await deleteSecondTest(examId)
     ElMessage.success('删除成功')
     loadData()
-  } catch (e) {}
+  } catch (e) {
+    if (e !== 'cancel' && e?.message) {
+      ElMessage.error('删除失败：该考生可能有录取记录')
+    }
+  }
 }
 
 onMounted(() => { loadData() })

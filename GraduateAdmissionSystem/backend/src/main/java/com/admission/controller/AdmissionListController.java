@@ -2,37 +2,26 @@ package com.admission.controller;
 
 import com.admission.entity.*;
 import com.admission.mapper.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * 录取名单控制器
  */
 @RestController
 @RequestMapping("/api/admission")
+@RequiredArgsConstructor
 public class AdmissionListController {
 
-    @Autowired
-    private AdmissionListMapper admissionListMapper;
-
-    @Autowired
-    private FirstTestScoreMapper firstTestScoreMapper;
-
-    @Autowired
-    private SecondTestScoreMapper secondTestScoreMapper;
-
-    @Autowired
-    private ScoreLineMapper scoreLineMapper;
-
-    @Autowired
-    private CandidateProfileMapper candidateProfileMapper;
-
-    @Autowired
-    private MajorDictMapper majorDictMapper;
+    private final AdmissionListMapper admissionListMapper;
+    private final FirstTestScoreMapper firstTestScoreMapper;
+    private final SecondTestScoreMapper secondTestScoreMapper;
+    private final ScoreLineMapper scoreLineMapper;
+    private final CandidateProfileMapper candidateProfileMapper;
+    private final MajorDictMapper majorDictMapper;
 
     /** 查询所有录取考生 */
     @GetMapping("/list")
@@ -74,7 +63,7 @@ public class AdmissionListController {
         // 计算综合总分
         double totalScore = firstScore.getTotalFirst() + secondScore.getTotalSecond();
         // 检查是否达到录取总分线
-        ScoreLine line = scoreLineMapper.findByYear("2026");
+        ScoreLine line = scoreLineMapper.findByYear(String.valueOf(java.time.Year.now().getValue()));
         if (line != null && line.getAdmissionTotalLine() != null) {
             if (totalScore < line.getAdmissionTotalLine()) {
                 return Result.error("综合总分(" + totalScore + ")未达到录取总分线(" + line.getAdmissionTotalLine() + ")，无法录取");

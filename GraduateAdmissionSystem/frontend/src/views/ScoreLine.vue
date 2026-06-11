@@ -213,7 +213,9 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { getScoreLineList, addScoreLine, updateScoreLine, deleteScoreLine } from '../api/scoreline'
-import axios from 'axios'
+import { getScreening } from '../api/statistics'
+import { getSecondTestList } from '../api/secondTest'
+import { getCandidateList } from '../api/candidate'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const tableData = ref([])
@@ -247,16 +249,16 @@ async function loadData() {
 // 执行筛选
 async function runScreening(year) {
   try {
-    const res = await axios.get('/api/statistics/screening', { params: { year } })
-    if (res.data.code === 200) {
-      screeningResult.value = res.data.data
+    const res = await getScreening(year)
+    if (res.code === 200) {
+      screeningResult.value = res.data
       // 继续做复试后综合筛选
-      await runAdmissionScreening(res.data.data)
+      await runAdmissionScreening(res.data)
     } else {
-      ElMessage.error(res.data.message || '筛选失败')
+      ElMessage.error(res.message || '筛选失败')
     }
   } catch (e) {
-    ElMessage.error('执行筛选失败')
+    ElMessage.error('执行筛选失败：' + (e.message || '网络异常'))
   }
 }
 
@@ -265,13 +267,14 @@ async function runAdmissionScreening(firstResult) {
   const line = firstResult.scoreLine
   const qualified = firstResult.qualified
   try {
-    const secondRes = await axios.get('/api/second-test/list')
+    const [secondRes, candidateRes] = await Promise.all([
+      getSecondTestList(),
+      getCandidateList()
+    ])
     const secondScores = {}
-    ;(secondRes.data.data || []).forEach(s => { secondScores[s.examId] = s.totalSecond })
-    // 获取考生姓名
-    const candidateRes = await axios.get('/api/candidate/list')
+    ;(secondRes.data || []).forEach(s => { secondScores[s.examId] = s.totalSecond })
     const nameMap = {}
-    ;(candidateRes.data.data || []).forEach(c => { nameMap[c.examId] = c.name })
+    ;(candidateRes.data || []).forEach(c => { nameMap[c.examId] = c.name })
 
     const admitted = []   // 综合达线可录取
     const failed = []     // 综合不够线

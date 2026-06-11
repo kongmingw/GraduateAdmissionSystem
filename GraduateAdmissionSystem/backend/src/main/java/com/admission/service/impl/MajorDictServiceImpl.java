@@ -3,7 +3,7 @@ package com.admission.service.impl;
 import com.admission.entity.MajorDict;
 import com.admission.mapper.MajorDictMapper;
 import com.admission.service.MajorDictService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,10 +13,10 @@ import java.util.List;
  * 专业字典业务实现类
  */
 @Service
+@RequiredArgsConstructor
 public class MajorDictServiceImpl implements MajorDictService {
 
-    @Autowired
-    private MajorDictMapper majorDictMapper;
+    private final MajorDictMapper majorDictMapper;
 
     @Override
     public List<MajorDict> findAll() {

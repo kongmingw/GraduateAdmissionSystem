@@ -4,25 +4,15 @@
 
 <mapper namespace="com.admission.mapper.ScoreLineMapper">
 
-    <resultMap id="ScoreLineMap" type="com.admission.entity.ScoreLine">
-        <id property="id" column="id"/>
-        <result property="year" column="year"/>
-        <result property="politicsLine" column="politics_line"/>
-        <result property="foreignLangLine" column="foreign_lang_line"/>
-        <result property="majorBasisLine" column="major_basis_line"/>
-        <result property="totalFirstLine" column="total_first_line"/>
-        <result property="admissionTotalLine" column="admission_total_line"/>
-    </resultMap>
-
-    <select id="findAll" resultMap="ScoreLineMap">
+    <select id="findAll" resultType="com.admission.entity.ScoreLine">
         SELECT * FROM score_line ORDER BY year DESC
     </select>
 
-    <select id="findById" resultMap="ScoreLineMap">
+    <select id="findById" resultType="com.admission.entity.ScoreLine">
         SELECT * FROM score_line WHERE id = #{id}
     </select>
 
-    <select id="findByYear" resultMap="ScoreLineMap">
+    <select id="findByYear" resultType="com.admission.entity.ScoreLine">
         SELECT * FROM score_line WHERE year = #{year}
     </select>
 

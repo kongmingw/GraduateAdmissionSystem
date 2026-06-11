@@ -152,7 +152,10 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import axios from 'axios'
+import { getAllStatistics, getScreening } from '../api/statistics'
+import { getCandidateList } from '../api/candidate'
+import { getAdmissionList } from '../api/admission'
+import { getMajorList } from '../api/major'
 import { ElMessage } from 'element-plus'
 
 const scoreOverviewTable = ref([])
@@ -170,6 +173,8 @@ const overview = reactive({
   majors: 0,
   avgTotalFirst: 0
 })
+
+const currentYear = new Date().getFullYear().toString()
 
 // 计算各图表的最大值
 const firstMax = computed(() => maxCount(firstDistribution.value))
@@ -203,7 +208,6 @@ const passPies = computed(() => passPieData.value.map(p => {
   const color = rate >= 60 ? '#67C23A' : '#F56C6C'
   return `conic-gradient(${color} 0deg ${rate * 3.6}deg, #f0f0f0 ${rate * 3.6}deg 360deg)`
 }))
-const eduMax = computed(() => maxVal(countByEducation.value))
 
 function maxCount(arr) { return Math.max(...arr.map(i => i.count || 0), 1) }
 function maxVal(arr) { return Math.max(...arr.map(i => i.value || 0), 1) }
@@ -213,8 +217,8 @@ function passColor(rate) { return Number(rate) >= 60 ? '#67C23A' : '#F56C6C' }
 
 async function loadStatistics() {
   try {
-    const res = await axios.get('/api/statistics/all')
-    const data = res.data.data
+    const res = await getAllStatistics()
+    const data = res.data
 
     if (data.scoreOverview) {
       const so = data.scoreOverview
@@ -232,25 +236,25 @@ async function loadStatistics() {
     countByEducation.value = data.countByEducation || []
     planVsActual.value = data.planVsActual || []
 
-    // 概览数据
-    const candidatesRes = await axios.get('/api/candidate/list')
-    const admissionRes = await axios.get('/api/admission/list')
-    const majorRes = await axios.get('/api/major/list')
-    overview.candidates = (candidatesRes.data.data || []).length
-    overview.admitted = (admissionRes.data.data || []).length
-    overview.majors = (majorRes.data.data || []).length
-    const scores = firstDistribution.value.reduce((s, i) => s + i.count, 0)
-    if (scores > 0) {
-      const allScores = []
-      firstDistribution.value.forEach(i => {
-        for (let j = 0; j < i.count; j++) allScores.push(parseInt(i.scoreRange) || 0)
-      })
-    }
+    // 并行获取概览数据
+    const [candidatesRes, admissionRes, majorRes] = await Promise.all([
+      getCandidateList(),
+      getAdmissionList(),
+      getMajorList()
+    ])
+    overview.candidates = (candidatesRes.data || []).length
+    overview.admitted = (admissionRes.data || []).length
+    overview.majors = (majorRes.data || []).length
+
+    // 初试均分直接取三科均分的平均值
     if (data.scoreOverview) {
-      overview.avgTotalFirst = Math.round((Number(data.scoreOverview.avgPolitics) + Number(data.scoreOverview.avgForeign) + Number(data.scoreOverview.avgMajorBasis)) / 3 * 10) / 10
+      const so = data.scoreOverview
+      overview.avgTotalFirst = Math.round(
+        (Number(so.avgPolitics || 0) + Number(so.avgForeign || 0) + Number(so.avgMajorBasis || 0)) / 3 * 10
+      ) / 10
     }
   } catch (e) {
-    ElMessage.error('加载统计数据失败')
+    ElMessage.error('加载统计数据失败：' + (e.message || '网络异常'))
   }
 }
 

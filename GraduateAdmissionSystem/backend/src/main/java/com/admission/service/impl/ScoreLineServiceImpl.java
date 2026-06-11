@@ -3,17 +3,17 @@ package com.admission.service.impl;
 import com.admission.entity.ScoreLine;
 import com.admission.mapper.ScoreLineMapper;
 import com.admission.service.ScoreLineService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class ScoreLineServiceImpl implements ScoreLineService {
 
-    @Autowired
-    private ScoreLineMapper scoreLineMapper;
+    private final ScoreLineMapper scoreLineMapper;
 
     @Override
     public List<ScoreLine> findAll() {

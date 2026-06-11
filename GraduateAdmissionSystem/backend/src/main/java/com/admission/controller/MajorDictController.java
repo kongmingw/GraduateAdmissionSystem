@@ -4,7 +4,7 @@ import com.admission.entity.*;
 import com.admission.mapper.AdmissionListMapper;
 import com.admission.mapper.CandidateProfileMapper;
 import com.admission.service.MajorDictService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,16 +14,12 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/major")
+@RequiredArgsConstructor
 public class MajorDictController {
 
-    @Autowired
-    private MajorDictService majorDictService;
-
-    @Autowired
-    private AdmissionListMapper admissionListMapper;
-
-    @Autowired
-    private CandidateProfileMapper candidateProfileMapper;
+    private final MajorDictService majorDictService;
+    private final AdmissionListMapper admissionListMapper;
+    private final CandidateProfileMapper candidateProfileMapper;
 
     /** 查询所有专业 */
     @GetMapping("/list")

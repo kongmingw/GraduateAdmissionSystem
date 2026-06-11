@@ -3,7 +3,7 @@ package com.admission.controller;
 import com.admission.entity.CandidateProfile;
 import com.admission.entity.Result;
 import com.admission.service.CandidateProfileService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,10 +13,10 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/candidate")
+@RequiredArgsConstructor
 public class CandidateProfileController {
 
-    @Autowired
-    private CandidateProfileService candidateService;
+    private final CandidateProfileService candidateService;
 
     /** 查询所有考生 */
     @GetMapping("/list")

@@ -3,17 +3,17 @@ package com.admission.service.impl;
 import com.admission.entity.SecondTestScore;
 import com.admission.mapper.SecondTestScoreMapper;
 import com.admission.service.SecondTestScoreService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class SecondTestScoreServiceImpl implements SecondTestScoreService {
 
-    @Autowired
-    private SecondTestScoreMapper secondTestScoreMapper;
+    private final SecondTestScoreMapper secondTestScoreMapper;
 
     @Override
     public List<SecondTestScore> findAll() {

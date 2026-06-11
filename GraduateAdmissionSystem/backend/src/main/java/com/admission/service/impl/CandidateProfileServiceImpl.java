@@ -3,7 +3,7 @@ package com.admission.service.impl;
 import com.admission.entity.CandidateProfile;
 import com.admission.mapper.CandidateProfileMapper;
 import com.admission.service.CandidateProfileService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,10 +13,10 @@ import java.util.List;
  * 考生档案业务实现类
  */
 @Service
+@RequiredArgsConstructor
 public class CandidateProfileServiceImpl implements CandidateProfileService {
 
-    @Autowired
-    private CandidateProfileMapper candidateMapper;
+    private final CandidateProfileMapper candidateMapper;
 
     @Override
     public List<CandidateProfile> findAll() {

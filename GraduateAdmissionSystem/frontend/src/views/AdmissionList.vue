@@ -104,7 +104,9 @@ import { ref, reactive, onMounted } from 'vue'
 import { getAdmissionList, admitCandidate, cancelAdmission } from '../api/admission'
 import { getCandidateList } from '../api/candidate'
 import { getMajorList } from '../api/major'
-import axios from 'axios'
+import { getFirstTestList } from '../api/firstTest'
+import { getSecondTestList } from '../api/secondTest'
+import { getScoreLineByYear } from '../api/scoreline'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const tableData = ref([])
@@ -114,6 +116,7 @@ const majorList = ref([])
 const loadingCandidates = ref(false)
 const dialogVisible = ref(false)
 const admissionLine = ref(450)
+const currentYear = new Date().getFullYear().toString()
 
 const form = reactive({
   examId: '',
@@ -135,19 +138,19 @@ async function loadCandidates() {
     const [candidateRes, admissionRes, firstRes, secondRes, lineRes] = await Promise.all([
       getCandidateList(),
       getAdmissionList(),
-      axios.get('/api/first-test/list'),
-      axios.get('/api/second-test/list'),
-      axios.get('/api/score-line/year/2026')
+      getFirstTestList(),
+      getSecondTestList(),
+      getScoreLineByYear(currentYear)
     ])
     const allCandidates = candidateRes.data || []
     const admittedIds = new Set((admissionRes.data || []).map(a => a.examId))
     const firstMap = {}
-    ;(firstRes.data.data || []).forEach(f => { firstMap[f.examId] = f.totalFirst })
+    ;(firstRes.data || []).forEach(f => { firstMap[f.examId] = f.totalFirst })
     const secondMap = {}
-    ;(secondRes.data.data || []).forEach(s => { secondMap[s.examId] = s.totalSecond })
+    ;(secondRes.data || []).forEach(s => { secondMap[s.examId] = s.totalSecond })
     // 录取线
-    if (lineRes.data.data) {
-      admissionLine.value = lineRes.data.data.admissionTotalLine || 450
+    if (lineRes.data) {
+      admissionLine.value = lineRes.data.admissionTotalLine || 450
     }
 
     // 筛选：有初试+有复试+未被录取
@@ -164,7 +167,7 @@ async function loadCandidates() {
     qualifiedList.value = withBoth.filter(c => c.totalScore >= admissionLine.value)
     unqualifiedList.value = withBoth.filter(c => c.totalScore < admissionLine.value)
   } catch (e) {
-    ElMessage.error('加载数据失败')
+    ElMessage.error('加载数据失败：' + (e.message || '网络异常'))
   } finally {
     loadingCandidates.value = false
   }
