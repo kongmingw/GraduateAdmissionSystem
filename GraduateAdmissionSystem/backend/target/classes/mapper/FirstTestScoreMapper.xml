@@ -4,19 +4,23 @@
 
 <mapper namespace="com.admission.mapper.FirstTestScoreMapper">
 
+    <!-- 查询所有初试成绩 -->
     <select id="findAll" resultType="com.admission.entity.FirstTestScore">
         SELECT * FROM first_test_score
     </select>
 
+    <!-- 根据考号查询 -->
     <select id="findByExamId" resultType="com.admission.entity.FirstTestScore">
         SELECT * FROM first_test_score WHERE exam_id = #{examId}
     </select>
 
+    <!-- 新增初试成绩 -->
     <insert id="insert">
         INSERT INTO first_test_score (exam_id, politics, foreign_lang, major_basis)
         VALUES (#{examId}, #{politics}, #{foreignLang}, #{majorBasis})
     </insert>
 
+    <!-- 更新初试成绩 -->
     <update id="update">
         UPDATE first_test_score
         SET politics = #{politics},
@@ -25,6 +29,7 @@
         WHERE exam_id = #{examId}
     </update>
 
+    <!-- 删除初试成绩 -->
     <delete id="deleteByExamId">
         DELETE FROM first_test_score WHERE exam_id = #{examId}
     </delete>

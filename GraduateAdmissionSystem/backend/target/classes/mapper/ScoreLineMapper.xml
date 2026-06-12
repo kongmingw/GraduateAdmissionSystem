@@ -4,18 +4,22 @@
 
 <mapper namespace="com.admission.mapper.ScoreLineMapper">
 
+    <!-- 查询所有分数线 -->
     <select id="findAll" resultType="com.admission.entity.ScoreLine">
         SELECT * FROM score_line ORDER BY year DESC
     </select>
 
+    <!-- 根据ID查询 -->
     <select id="findById" resultType="com.admission.entity.ScoreLine">
         SELECT * FROM score_line WHERE id = #{id}
     </select>
 
+    <!-- 根据年份查询 -->
     <select id="findByYear" resultType="com.admission.entity.ScoreLine">
         SELECT * FROM score_line WHERE year = #{year}
     </select>
 
+    <!-- 新增分数线 -->
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO score_line (year, politics_line, foreign_lang_line, major_basis_line,
                                 total_first_line, admission_total_line)
@@ -23,6 +27,7 @@
                 #{totalFirstLine}, #{admissionTotalLine})
     </insert>
 
+    <!-- 更新分数线 -->
     <update id="update">
         UPDATE score_line
         SET year = #{year},
@@ -34,6 +39,7 @@
         WHERE id = #{id}
     </update>
 
+    <!-- 删除分数线 -->
     <delete id="deleteById">
         DELETE FROM score_line WHERE id = #{id}
     </delete>

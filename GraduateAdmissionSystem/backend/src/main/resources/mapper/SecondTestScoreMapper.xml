@@ -4,19 +4,23 @@
 
 <mapper namespace="com.admission.mapper.SecondTestScoreMapper">
 
+    <!-- 查询所有复试成绩 -->
     <select id="findAll" resultType="com.admission.entity.SecondTestScore">
         SELECT * FROM second_test_score
     </select>
 
+    <!-- 根据考号查询 -->
     <select id="findByExamId" resultType="com.admission.entity.SecondTestScore">
         SELECT * FROM second_test_score WHERE exam_id = #{examId}
     </select>
 
+    <!-- 新增复试成绩 -->
     <insert id="insert">
         INSERT INTO second_test_score (exam_id, major_test, interview, computer_test)
         VALUES (#{examId}, #{majorTest}, #{interview}, #{computerTest})
     </insert>
 
+    <!-- 更新复试成绩 -->
     <update id="update">
         UPDATE second_test_score
         SET major_test = #{majorTest},
@@ -25,6 +29,7 @@
         WHERE exam_id = #{examId}
     </update>
 
+    <!-- 删除复试成绩 -->
     <delete id="deleteByExamId">
         DELETE FROM second_test_score WHERE exam_id = #{examId}
     </delete>
