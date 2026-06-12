@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Year;
-import java.util.List;
+import java.util.*;
 
 /**
  * 录取管理业务
@@ -118,5 +118,54 @@ public class AdmissionListService {
             throw new RuntimeException("该考生不在录取名单中");
         }
         admissionListMapper.deleteByExamId(examId);
+    }
+
+    /** 获取待录取候选列表（有初试+有复试+未被录取，按录取线分组） */
+    public Map<String, Object> getCandidates() {
+        String currentYear = String.valueOf(Year.now().getValue());
+        ScoreLine line = scoreLineMapper.findByYear(currentYear);
+        double admissionLine = (line != null && line.getAdmissionTotalLine() != null) ? line.getAdmissionTotalLine() : 450;
+
+        Set<String> admittedIds = new HashSet<>();
+        admissionListMapper.findAll().forEach(a -> admittedIds.add(a.getExamId()));
+
+        Map<String, Double> firstMap = new HashMap<>();
+        firstTestScoreMapper.findAll().forEach(f -> firstMap.put(f.getExamId(), f.getTotalFirst()));
+
+        Map<String, Double> secondMap = new HashMap<>();
+        secondTestScoreMapper.findAll().forEach(s -> secondMap.put(s.getExamId(), s.getTotalSecond()));
+
+        List<Map<String, Object>> qualified = new ArrayList<>();
+        List<Map<String, Object>> unqualified = new ArrayList<>();
+
+        candidateProfileMapper.findAll().forEach(c -> {
+            String examId = c.getExamId();
+            if (admittedIds.contains(examId)) return;
+            Double totalFirst = firstMap.get(examId);
+            Double totalSecond = secondMap.get(examId);
+            if (totalFirst == null || totalSecond == null) return;
+
+            double totalScore = totalFirst + totalSecond;
+            Map<String, Object> entry = new HashMap<>();
+            entry.put("examId", examId);
+            entry.put("name", c.getName());
+            entry.put("targetMajor", c.getTargetMajor());
+            entry.put("finalFirstScore", totalFirst);
+            entry.put("finalSecondScore", totalSecond);
+            entry.put("totalScore", totalScore);
+
+            if (totalScore >= admissionLine) {
+                qualified.add(entry);
+            } else {
+                entry.put("gap", String.format("%.1f", admissionLine - totalScore));
+                unqualified.add(entry);
+            }
+        });
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("admissionLine", admissionLine);
+        result.put("qualified", qualified);
+        result.put("unqualified", unqualified);
+        return result;
     }
 }

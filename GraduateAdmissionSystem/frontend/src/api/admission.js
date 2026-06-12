@@ -16,3 +16,7 @@ export function admitCandidate(data) {
 export function cancelAdmission(examId) {
   return request.delete(`/admission/cancel/${examId}`)
 }
+
+export function getCandidates() {
+  return request.get('/admission/candidates')
+}

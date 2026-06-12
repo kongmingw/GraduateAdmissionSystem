@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 录取名单控制器
@@ -43,6 +44,12 @@ public class AdmissionListController {
         } catch (RuntimeException e) {
             return Result.error(e.getMessage());
         }
+    }
+
+    /** 获取待录取候选列表（有初试+有复试+未被录取，按录取线分组） */
+    @GetMapping("/candidates")
+    public Result<Map<String, Object>> candidates() {
+        return Result.success(admissionService.getCandidates());
     }
 
     /** 取消录取 */

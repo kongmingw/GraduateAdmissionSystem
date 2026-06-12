@@ -101,12 +101,8 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { getAdmissionList, admitCandidate, cancelAdmission } from '../api/admission'
-import { getCandidateList } from '../api/candidate'
+import { getAdmissionList, admitCandidate, cancelAdmission, getCandidates } from '../api/admission'
 import { getMajorList } from '../api/major'
-import { getFirstTestList } from '../api/firstTest'
-import { getSecondTestList } from '../api/secondTest'
-import { getScoreLineByYear } from '../api/scoreline'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const tableData = ref([])
@@ -116,7 +112,6 @@ const majorList = ref([])
 const loadingCandidates = ref(false)
 const dialogVisible = ref(false)
 const admissionLine = ref(450)
-const currentYear = new Date().getFullYear().toString()
 
 const form = reactive({
   examId: '',
@@ -135,37 +130,10 @@ async function loadAdmissions() {
 async function loadCandidates() {
   loadingCandidates.value = true
   try {
-    const [candidateRes, admissionRes, firstRes, secondRes, lineRes] = await Promise.all([
-      getCandidateList(),
-      getAdmissionList(),
-      getFirstTestList(),
-      getSecondTestList(),
-      getScoreLineByYear(currentYear)
-    ])
-    const allCandidates = candidateRes.data || []
-    const admittedIds = new Set((admissionRes.data || []).map(a => a.examId))
-    const firstMap = {}
-    ;(firstRes.data || []).forEach(f => { firstMap[f.examId] = f.totalFirst })
-    const secondMap = {}
-    ;(secondRes.data || []).forEach(s => { secondMap[s.examId] = s.totalSecond })
-    // 录取线
-    if (lineRes.data) {
-      admissionLine.value = lineRes.data.admissionTotalLine || 450
-    }
-
-    // 筛选：有初试+有复试+未被录取
-    const withBoth = allCandidates.filter(c =>
-      !admittedIds.has(c.examId) && firstMap[c.examId] != null && secondMap[c.examId] != null
-    ).map(c => ({
-      ...c,
-      finalFirstScore: firstMap[c.examId],
-      finalSecondScore: secondMap[c.examId],
-      totalScore: firstMap[c.examId] + secondMap[c.examId]
-    }))
-
-    // 分组
-    qualifiedList.value = withBoth.filter(c => c.totalScore >= admissionLine.value)
-    unqualifiedList.value = withBoth.filter(c => c.totalScore < admissionLine.value)
+    const res = await getCandidates()
+    admissionLine.value = res.data.admissionLine || 450
+    qualifiedList.value = res.data.qualified || []
+    unqualifiedList.value = res.data.unqualified || []
   } catch (e) {
     ElMessage.error('加载数据失败：' + (e.message || '网络异常'))
   } finally {
@@ -178,12 +146,6 @@ async function loadMajors() {
     const res = await getMajorList()
     majorList.value = res.data || []
   } catch (e) { console.error('加载专业列表失败') }
-}
-
-function showAdmitDialog() {
-  form.examId = ''
-  form.admittedMajor = ''
-  dialogVisible.value = true
 }
 
 function quickAdmit(row) {

@@ -213,9 +213,7 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { getScoreLineList, addScoreLine, updateScoreLine, deleteScoreLine } from '../api/scoreline'
-import { getScreening } from '../api/statistics'
-import { getSecondTestList } from '../api/secondTest'
-import { getCandidateList } from '../api/candidate'
+import { getScreening, getAdmissionScreening } from '../api/statistics'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const tableData = ref([])
@@ -246,72 +244,17 @@ async function loadData() {
   }
 }
 
-// 执行筛选
+// 执行筛选（初试 + 复试综合）
 async function runScreening(year) {
   try {
-    const res = await getScreening(year)
-    if (res.code === 200) {
-      screeningResult.value = res.data
-      // 继续做复试后综合筛选
-      await runAdmissionScreening(res.data)
-    } else {
-      ElMessage.error(res.message || '筛选失败')
-    }
+    const [firstRes, secondRes] = await Promise.all([
+      getScreening(year),
+      getAdmissionScreening(year)
+    ])
+    screeningResult.value = firstRes.data
+    admissionResult.value = secondRes.data
   } catch (e) {
     ElMessage.error('执行筛选失败：' + (e.message || '网络异常'))
-  }
-}
-
-// 复试后综合筛选
-async function runAdmissionScreening(firstResult) {
-  const line = firstResult.scoreLine
-  const qualified = firstResult.qualified
-  try {
-    const [secondRes, candidateRes] = await Promise.all([
-      getSecondTestList(),
-      getCandidateList()
-    ])
-    const secondScores = {}
-    ;(secondRes.data || []).forEach(s => { secondScores[s.examId] = s.totalSecond })
-    const nameMap = {}
-    ;(candidateRes.data || []).forEach(c => { nameMap[c.examId] = c.name })
-
-    const admitted = []   // 综合达线可录取
-    const failed = []     // 综合不够线
-    qualified.forEach(q => {
-      const totalFirst = q.totalFirst
-      const totalSecond = secondScores[q.examId]
-      const entry = {
-        examId: q.examId,
-        name: nameMap[q.examId] || '',
-        totalFirst: totalFirst
-      }
-      if (totalSecond == null) {
-        entry.totalSecond = '--'
-        entry.totalScore = '--'
-        entry.status = '未复试'
-        failed.push(entry)
-      } else {
-        const total = totalFirst + totalSecond
-        entry.totalSecond = totalSecond
-        entry.totalScore = total
-        if (total >= line.admissionTotalLine) {
-          entry.status = '可录取'
-          admitted.push(entry)
-        } else {
-          entry.status = '不达标'
-          entry.gap = (line.admissionTotalLine - total).toFixed(1)
-          failed.push(entry)
-        }
-      }
-    })
-    admissionResult.value = {
-      line: line.admissionTotalLine,
-      admitted,
-      failed
-    }
-  } catch (e) {
-    console.error('复试筛选失败', e)
   }
 }
 

@@ -16,3 +16,7 @@ export function getAllStatistics() {
 export function getScreening(year) {
   return request.get('/statistics/screening', { params: { year } })
 }
+
+export function getAdmissionScreening(year) {
+  return request.get('/statistics/admission-screening', { params: { year } })
+}
