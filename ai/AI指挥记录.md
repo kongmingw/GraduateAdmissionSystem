@@ -253,3 +253,85 @@
 1. 解释分数线年份字段的多年度设计
 2. 去掉考生管理页面不常用的"刷新"按钮
 3. 进度条去掉 striped 和 striped-flow 闪动效果
+
+---
+
+## 24. 代码规范化重构（2026-06-12）
+
+**问**：看一下这个项目 / 看完代码
+
+**处理**：全面审查所有代码，发现并修复以下问题：
+
+**Entity 层统一**：6 个类混用 Lombok + 手写 Getter/Setter，全部统一为 @Data/@NoArgsConstructor/@AllArgsConstructor，Result.java 同样启用 Lombok，删除约 200 行冗余代码。
+
+**依赖注入改造**：12 个文件从 @Autowired 字段注入改为构造器注入（@RequiredArgsConstructor + private final），消除 IDE 警告。
+
+**MyBatis 清理**：移除 CandidateProfile 和 ScoreLine 的冗余 resultMap（全局已配驼峰转换）；删除 resources/mapper 下误放的 .java 文件；删除 java/mapper 下多余的 .xml 副本。
+
+**注释统一**：补齐 3 个 Controller、5 个 Mapper、3 个 Service、3 个 XML 的方法注释和字段注释，全部 Java/XML 注释风格一致。
+
+**pom.xml**：Lombok 升级到 1.18.46 兼容 JDK 26，加注解处理器配置，否则 mvn compile 失败。
+
+---
+
+## 25. Service 接口合并
+
+**问**：为什么用接口，不直接实现 / 改
+
+**处理**：5 个 Service 接口纯属过度设计（每个只有一个实现类），删除 service/impl/ 目录，Service 类直接放在 service/ 下。Controller 无需改动（import 路径不变）。净减 5 个文件，-119 行。
+
+---
+
+## 26. Controller 越层调 Mapper
+
+**问**：是不是 controller 把 service 的活抢了 / 修吧
+
+**处理**：4 个 Controller 直接注 Mapper、业务逻辑写在 Controller 里。修复：
+- 新建 `AdmissionListService`：admit()/cancel() 逻辑
+- 新建 `StatisticsService`：screening()/admissionScreening() 逻辑
+- 增强 `SecondTestScoreService.add()`：初试过线校验
+- 增强 `MajorDictService.update()`：名额校验
+- 4 个 Controller 全部改为只注 Service，零 Mapper 注入
+- 7 个 Controller 全部统一为 Controller → Service → Mapper
+
+---
+
+## 27. 前端抢后端工作
+
+**问**：前端是不是把后端的 service 给抢了 / 修
+
+**处理**：ScoreLine.vue 自己调 3 个接口手动算分分组，AdmissionList.vue 自己调 5 个接口建 Map 算分。新增后端接口：
+- `GET /api/statistics/admission-screening`：初试合格→复试成绩→综合分 vs 录取线
+- `GET /api/admission/candidates`：有初试+有复试+未录取→按录取线分组
+- ScoreLine.vue -53 行，AdmissionList.vue -35 行
+
+---
+
+## 28. 防御性编程修复
+
+**问**：录不了成绩了 / 修
+
+**处理**：handleSave 中 GET 查成绩时，后端返 500 被拦截器 reject，不走新增分支。改为 GET 单独包 try，查不到走新增。
+
+**同时修复**：
+- 复试成绩页分数线未设时整页崩掉 → tolerant 回退
+- 搜索 toLowerCase() 无空值保护 → 加 `(str || '')`
+- 表单重置嵌套三元表达式 → `getDefaultForm()` 函数
+- 删除空文件 HelloWorld.vue 和 mybatis-config.xml
+
+---
+
+## 29. 全局异常处理
+
+**问**：Controller 异常处理不统一
+
+**处理**：新增 `GlobalExceptionHandler`（@RestControllerAdvice），RuntimeException 统一转 Result.error。
+4 个 Controller 删除手写 try-catch，代码更简洁。
+
+---
+
+## 30. 数据库年份字段（已回撤）
+
+**问**：今年这批完了就直接删档重来吗
+
+**处理**：candidate_profile 加 year 列，schema.sql + seed.sql + Entity + Mapper XML + 前端都改了。后来用户决定自己回撤数据库改动，后端和前端也随之回撤。
