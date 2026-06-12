@@ -19,8 +19,10 @@ C:\Users\Mechrevo\Desktop\keue\GraduateAdmissionSystem\backend\src\main\java\com
 C:\Users\Mechrevo\Desktop\keue\GraduateAdmissionSystem\backend\src\main\java\com\admission\mapper\AdmissionListMapper.java
 C:\Users\Mechrevo\Desktop\keue\GraduateAdmissionSystem\backend\src\main\java\com\admission\mapper\MajorDictMapper.java
 C:\Users\Mechrevo\Desktop\keue\GraduateAdmissionSystem\backend\src\main\java\com\admission\controller\FirstTestScoreController.java
+C:\Users\Mechrevo\Desktop\keue\GraduateAdmissionSystem\backend\src\main\java\com\admission\service\StatisticsService.java
 C:\Users\Mechrevo\Desktop\keue\GraduateAdmissionSystem\backend\src\main\java\com\admission\entity\CandidateProfile.java
 C:\Users\Mechrevo\Desktop\keue\GraduateAdmissionSystem\backend\src\main\java\com\admission\GraduateAdmissionApplication.java
+C:\Users\Mechrevo\Desktop\keue\GraduateAdmissionSystem\backend\src\main\java\com\admission\service\AdmissionListService.java
 C:\Users\Mechrevo\Desktop\keue\GraduateAdmissionSystem\backend\src\main\java\com\admission\mapper\CandidateProfileMapper.java
 C:\Users\Mechrevo\Desktop\keue\GraduateAdmissionSystem\backend\src\main\java\com\admission\service\ScoreLineService.java
 C:\Users\Mechrevo\Desktop\keue\GraduateAdmissionSystem\backend\src\main\java\com\admission\entity\Result.java

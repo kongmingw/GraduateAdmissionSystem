@@ -3,6 +3,7 @@ com\admission\mapper\SecondTestScoreMapper.class
 com\admission\entity\MajorDict.class
 com\admission\entity\ScoreLine.class
 com\admission\controller\FirstTestScoreController.class
+com\admission\service\StatisticsService.class
 com\admission\config\CorsConfig.class
 com\admission\entity\AdmissionList.class
 com\admission\mapper\ScoreLineMapper.class
@@ -19,6 +20,7 @@ com\admission\service\MajorDictService.class
 com\admission\controller\MajorDictController.class
 com\admission\entity\SecondTestScore.class
 com\admission\mapper\CandidateProfileMapper.class
+com\admission\service\AdmissionListService.class
 com\admission\service\SecondTestScoreService.class
 com\admission\service\FirstTestScoreService.class
 com\admission\service\ScoreLineService.class
