@@ -178,15 +178,23 @@ function doFilter() {
   }
   if (searchKeyword.value) {
     const kw = searchKeyword.value.toLowerCase()
-    list = list.filter(c => c.examId.toLowerCase().includes(kw) || c.name.toLowerCase().includes(kw))
+    list = list.filter(c => (c.examId || '').toLowerCase().includes(kw) || (c.name || '').toLowerCase().includes(kw))
   }
   tableData.value = list
+}
+
+function getDefaultForm() {
+  return {
+    examId: '', name: '', gender: '男', age: 22,
+    politicalStatus: '', isFreshGraduate: true, education: '本科',
+    origin: '', targetMajor: '', category: '计划内'
+  }
 }
 
 // 新增
 function showAddDialog() {
   isEdit.value = false
-  Object.keys(form).forEach(key => form[key] = key === 'gender' ? '男' : key === 'education' ? '本科' : key === 'category' ? '计划内' : key === 'isFreshGraduate' ? true : key === 'age' ? 22 : '')
+  Object.assign(form, getDefaultForm())
   dialogVisible.value = true
 }
 

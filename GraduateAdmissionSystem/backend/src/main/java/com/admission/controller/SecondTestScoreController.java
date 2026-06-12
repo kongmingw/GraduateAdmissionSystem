@@ -37,15 +37,11 @@ public class SecondTestScoreController {
     /** 录入复试成绩（初试过线校验在Service层） */
     @PostMapping("/add")
     public Result<String> add(@RequestBody SecondTestScore score) {
-        try {
-            int count = secondTestScoreService.add(score);
-            if (count > 0) {
-                return Result.success("录入复试成绩成功");
-            }
-            return Result.error("录入失败");
-        } catch (RuntimeException e) {
-            return Result.error(e.getMessage());
+        int count = secondTestScoreService.add(score);
+        if (count > 0) {
+            return Result.success("录入复试成绩成功");
         }
+        return Result.error("录入失败");
     }
 
     /** 更新复试成绩 */

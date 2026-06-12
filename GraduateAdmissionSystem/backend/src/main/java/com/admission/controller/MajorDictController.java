@@ -47,15 +47,11 @@ public class MajorDictController {
     /** 更新专业（名额校验在Service层） */
     @PutMapping("/update")
     public Result<String> update(@RequestBody MajorDict majorDict) {
-        try {
-            int count = majorDictService.update(majorDict);
-            if (count > 0) {
-                return Result.success("更新专业成功");
-            }
-            return Result.error("更新专业失败");
-        } catch (RuntimeException e) {
-            return Result.error(e.getMessage());
+        int count = majorDictService.update(majorDict);
+        if (count > 0) {
+            return Result.success("更新专业成功");
         }
+        return Result.error("更新专业失败");
     }
 
     /** 删除专业 */

@@ -87,9 +87,9 @@ function doFilter() {
     tableData.value = allData.value
     return
   }
-  const kw = searchKeyword.value.toLowerCase()
+  const kw = (searchKeyword.value || '').toLowerCase()
   tableData.value = allData.value.filter(m =>
-    m.majorCode.toLowerCase().includes(kw) || m.majorName.toLowerCase().includes(kw)
+    (m.majorCode || '').toLowerCase().includes(kw) || (m.majorName || '').toLowerCase().includes(kw)
   )
 }
 

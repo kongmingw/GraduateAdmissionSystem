@@ -38,20 +38,12 @@ public class StatisticsController {
     /** 初试筛选：根据分数线自动判定复试资格 */
     @GetMapping("/screening")
     public Result<Map<String, Object>> screening(@RequestParam(required = false) String year) {
-        try {
-            return Result.success(statisticsService.screening(year));
-        } catch (RuntimeException e) {
-            return Result.error(e.getMessage());
-        }
+        return Result.success(statisticsService.screening(year));
     }
 
     /** 复试后综合筛选：初试合格 → 复试成绩 → 综合总分 vs 录取线 */
     @GetMapping("/admission-screening")
     public Result<Map<String, Object>> admissionScreening(@RequestParam(required = false) String year) {
-        try {
-            return Result.success(statisticsService.admissionScreening(year));
-        } catch (RuntimeException e) {
-            return Result.error(e.getMessage());
-        }
+        return Result.success(statisticsService.admissionScreening(year));
     }
 }

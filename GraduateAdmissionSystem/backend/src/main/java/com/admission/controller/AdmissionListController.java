@@ -38,12 +38,7 @@ public class AdmissionListController {
     /** 录取考生（自动计算综合总分、检查分数线、名额限制） */
     @PostMapping("/admit")
     public Result<String> admit(@RequestBody AdmissionList request) {
-        try {
-            String msg = admissionService.admit(request);
-            return Result.success(msg);
-        } catch (RuntimeException e) {
-            return Result.error(e.getMessage());
-        }
+        return Result.success(admissionService.admit(request));
     }
 
     /** 获取待录取候选列表（有初试+有复试+未被录取，按录取线分组） */
@@ -55,11 +50,7 @@ public class AdmissionListController {
     /** 取消录取 */
     @DeleteMapping("/cancel/{examId}")
     public Result<String> cancel(@PathVariable String examId) {
-        try {
-            admissionService.cancel(examId);
-            return Result.success("取消录取成功");
-        } catch (RuntimeException e) {
-            return Result.error(e.getMessage());
-        }
+        admissionService.cancel(examId);
+        return Result.success("取消录取成功");
     }
 }

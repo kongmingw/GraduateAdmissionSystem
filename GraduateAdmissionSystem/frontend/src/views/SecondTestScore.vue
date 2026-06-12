@@ -96,14 +96,20 @@ const form = reactive({
 
 async function loadData() {
   try {
-    const [scoreRes, candidateRes, screeningRes] = await Promise.all([
+    const [scoreRes, candidateRes] = await Promise.all([
       getSecondTestList(),
-      getCandidateList(),
-      getScreening(currentYear)
+      getCandidateList()
     ])
     tableData.value = scoreRes.data || []
     const allCand = candidateRes.data || []
-    const qualifiedIds = new Set((screeningRes.data?.qualified || []).map(q => q.examId))
+
+    // 筛选初试合格者，如果分数线未设则回退显示全部
+    let qualifiedIds = new Set(allCand.map(c => c.examId))
+    try {
+      const screeningRes = await getScreening(currentYear)
+      qualifiedIds = new Set((screeningRes.data?.qualified || []).map(q => q.examId))
+    } catch (e) { /* 无分数线则允许录入所有考生 */ }
+
     allCandidates.value = allCand.filter(c => qualifiedIds.has(c.examId))
     const scoredIds = new Set(tableData.value.map(s => s.examId))
     pendingList.value = allCandidates.value.filter(c => !scoredIds.has(c.examId))
