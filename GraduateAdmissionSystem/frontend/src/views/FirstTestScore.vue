@@ -155,9 +155,13 @@ function showDialog(row) {
 async function handleSave() {
   if (!form.examId) { ElMessage.warning('请选择考生'); return }
   try {
-    // 先查询是否已有成绩，决定新增还是更新
-    const existing = await getFirstTestByExamId(form.examId)
-    if (existing.data) {
+    // 先查是否存在，查不到则新增，查到则更新
+    let exists = false
+    try {
+      const existing = await getFirstTestByExamId(form.examId)
+      exists = !!existing.data
+    } catch (e) { /* 查不到说明无成绩，走新增 */ }
+    if (exists) {
       await updateFirstTest(form)
       ElMessage.success('更新成功')
     } else {

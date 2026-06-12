@@ -160,8 +160,12 @@ function showDialog(row) {
 async function handleSave() {
   if (!form.examId) { ElMessage.warning('请选择考生'); return }
   try {
-    const existing = await getSecondTestByExamId(form.examId)
-    if (existing.data) {
+    let exists = false
+    try {
+      const existing = await getSecondTestByExamId(form.examId)
+      exists = !!existing.data
+    } catch (e) { /* 查不到说明无成绩，走新增 */ }
+    if (exists) {
       await updateSecondTest(form)
       ElMessage.success('更新成功')
     } else {
