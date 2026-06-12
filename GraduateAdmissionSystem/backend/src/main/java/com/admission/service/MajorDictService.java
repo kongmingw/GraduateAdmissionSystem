@@ -1,25 +1,42 @@
 package com.admission.service;
 
 import com.admission.entity.MajorDict;
+import com.admission.mapper.MajorDictMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 /**
- * 专业字典业务接口
+ * 专业字典业务
  */
-public interface MajorDictService {
+@Service
+@RequiredArgsConstructor
+public class MajorDictService {
 
-    /** 查询所有专业 */
-    List<MajorDict> findAll();
+    private final MajorDictMapper majorDictMapper;
 
-    /** 根据专业代码查询 */
-    MajorDict findByCode(String majorCode);
+    public List<MajorDict> findAll() {
+        return majorDictMapper.findAll();
+    }
 
-    /** 新增专业 */
-    int add(MajorDict majorDict);
+    public MajorDict findByCode(String majorCode) {
+        return majorDictMapper.findByCode(majorCode);
+    }
 
-    /** 更新专业 */
-    int update(MajorDict majorDict);
+    @Transactional
+    public int add(MajorDict majorDict) {
+        return majorDictMapper.insert(majorDict);
+    }
 
-    /** 删除专业 */
-    int delete(String majorCode);
+    @Transactional
+    public int update(MajorDict majorDict) {
+        return majorDictMapper.update(majorDict);
+    }
+
+    @Transactional
+    public int delete(String majorCode) {
+        return majorDictMapper.deleteByCode(majorCode);
+    }
 }

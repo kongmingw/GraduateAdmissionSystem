@@ -1,17 +1,39 @@
 package com.admission.service;
 
 import com.admission.entity.SecondTestScore;
+import com.admission.mapper.SecondTestScoreMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
-public interface SecondTestScoreService {
+@Service
+@RequiredArgsConstructor
+public class SecondTestScoreService {
 
-    List<SecondTestScore> findAll();
+    private final SecondTestScoreMapper secondTestScoreMapper;
 
-    SecondTestScore findByExamId(String examId);
+    public List<SecondTestScore> findAll() {
+        return secondTestScoreMapper.findAll();
+    }
 
-    int add(SecondTestScore score);
+    public SecondTestScore findByExamId(String examId) {
+        return secondTestScoreMapper.findByExamId(examId);
+    }
 
-    int update(SecondTestScore score);
+    @Transactional
+    public int add(SecondTestScore score) {
+        return secondTestScoreMapper.insert(score);
+    }
 
-    int delete(String examId);
+    @Transactional
+    public int update(SecondTestScore score) {
+        return secondTestScoreMapper.update(score);
+    }
+
+    @Transactional
+    public int delete(String examId) {
+        return secondTestScoreMapper.deleteByExamId(examId);
+    }
 }

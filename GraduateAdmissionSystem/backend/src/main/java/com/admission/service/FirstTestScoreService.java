@@ -1,17 +1,39 @@
 package com.admission.service;
 
 import com.admission.entity.FirstTestScore;
+import com.admission.mapper.FirstTestScoreMapper;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
-public interface FirstTestScoreService {
+@Service
+@RequiredArgsConstructor
+public class FirstTestScoreService {
 
-    List<FirstTestScore> findAll();
+    private final FirstTestScoreMapper firstTestScoreMapper;
 
-    FirstTestScore findByExamId(String examId);
+    public List<FirstTestScore> findAll() {
+        return firstTestScoreMapper.findAll();
+    }
 
-    int add(FirstTestScore score);
+    public FirstTestScore findByExamId(String examId) {
+        return firstTestScoreMapper.findByExamId(examId);
+    }
 
-    int update(FirstTestScore score);
+    @Transactional
+    public int add(FirstTestScore score) {
+        return firstTestScoreMapper.insert(score);
+    }
 
-    int delete(String examId);
+    @Transactional
+    public int update(FirstTestScore score) {
+        return firstTestScoreMapper.update(score);
+    }
+
+    @Transactional
+    public int delete(String examId) {
+        return firstTestScoreMapper.deleteByExamId(examId);
+    }
 }
