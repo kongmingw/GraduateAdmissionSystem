@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * 复试成绩管理控制器
+ */
 @RestController
 @RequestMapping("/api/second-test")
 @RequiredArgsConstructor
@@ -21,11 +24,13 @@ public class SecondTestScoreController {
     private final ScoreLineMapper scoreLineMapper;
     private final FirstTestScoreMapper firstTestScoreMapper;
 
+    /** 查询所有复试成绩 */
     @GetMapping("/list")
     public Result<List<SecondTestScore>> list() {
         return Result.success(secondTestScoreService.findAll());
     }
 
+    /** 根据考号查询复试成绩 */
     @GetMapping("/{examId}")
     public Result<SecondTestScore> getByExamId(@PathVariable String examId) {
         SecondTestScore score = secondTestScoreService.findByExamId(examId);
@@ -35,6 +40,7 @@ public class SecondTestScoreController {
         return Result.error("考生复试成绩不存在");
     }
 
+    /** 录入复试成绩（需初试过线） */
     @PostMapping("/add")
     public Result<String> add(@RequestBody SecondTestScore score) {
         String examId = score.getExamId();
@@ -62,6 +68,7 @@ public class SecondTestScoreController {
         return Result.error("录入失败");
     }
 
+    /** 更新复试成绩 */
     @PutMapping("/update")
     public Result<String> update(@RequestBody SecondTestScore score) {
         int count = secondTestScoreService.update(score);
@@ -71,6 +78,7 @@ public class SecondTestScoreController {
         return Result.error("更新失败");
     }
 
+    /** 删除复试成绩 */
     @DeleteMapping("/delete/{examId}")
     public Result<String> delete(@PathVariable String examId) {
         int count = secondTestScoreService.delete(examId);

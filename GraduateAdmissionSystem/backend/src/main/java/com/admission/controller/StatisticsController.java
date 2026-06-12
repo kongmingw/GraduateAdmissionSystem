@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
+/**
+ * 统计分析控制器
+ */
 @RestController
 @RequestMapping("/api/statistics")
 @RequiredArgsConstructor

@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Mapper;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 成绩统计 Mapper
+ */
 @Mapper
 public interface ScoreStatisticsMapper {
 

@@ -6,6 +6,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * 分数线 Mapper
+ */
 @Mapper
 public interface ScoreLineMapper {
 
