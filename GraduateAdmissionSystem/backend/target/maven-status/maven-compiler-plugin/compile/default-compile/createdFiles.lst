@@ -1,18 +1,15 @@
 com\admission\mapper\MajorDictMapper.class
 com\admission\mapper\SecondTestScoreMapper.class
 com\admission\entity\MajorDict.class
-com\admission\service\impl\CandidateProfileServiceImpl.class
 com\admission\entity\ScoreLine.class
 com\admission\controller\FirstTestScoreController.class
 com\admission\config\CorsConfig.class
-com\admission\service\impl\MajorDictServiceImpl.class
 com\admission\entity\AdmissionList.class
 com\admission\mapper\ScoreLineMapper.class
 com\admission\entity\CandidateProfile.class
 com\admission\mapper\AdmissionListMapper.class
 com\admission\controller\ScoreLineController.class
 com\admission\GraduateAdmissionApplication.class
-com\admission\service\impl\FirstTestScoreServiceImpl.class
 com\admission\controller\SecondTestScoreController.class
 com\admission\controller\StatisticsController.class
 com\admission\entity\Result.class
@@ -29,5 +26,3 @@ com\admission\mapper\FirstTestScoreMapper.class
 com\admission\entity\FirstTestScore.class
 com\admission\service\CandidateProfileService.class
 com\admission\mapper\ScoreStatisticsMapper.class
-com\admission\service\impl\ScoreLineServiceImpl.class
-com\admission\service\impl\SecondTestScoreServiceImpl.class
